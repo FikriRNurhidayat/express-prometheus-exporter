@@ -1,6 +1,6 @@
 {
   "name": "express-prometheus-exporter",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "RED/USE metrics for express applications",
   "keywords": [
     "express",
@@ -31,7 +31,6 @@
     "standard-version": "^9.5.0"
   },
   "dependencies": {
-    "@ls-age/commitlint-circle": "^1.0.0",
     "prom-client": "^14.2.0",
     "response-time": "^2.3.2",
     "url-value-parser": "^2.2.0"
