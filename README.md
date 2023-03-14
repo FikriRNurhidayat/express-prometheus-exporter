@@ -32,6 +32,7 @@ npm install express-prometheus-exporter
 | requestDurationBuckets | Buckets for the request duration metrics (in seconds) histogram                                                                                                                                                                                                                     | Uses `prom-client` utility: `Prometheus.exponentialBuckets(0.05, 1.75, 8)` |
 | requestLengthBuckets   | Buckets for the request length metrics (in bytes) histogram                                                                                                                                                                                                                         | no buckets (The request length metrics are not collected): `[]`            |
 | responseLengthBuckets  | Buckets for the response length metrics (in bytes) histogram                                                                                                                                                                                                                        | no buckets (The response length metrics are not collected) `[]`            |
+| sampleRate             | Define how many response should be recorded per 100 request                                                                                                                                                                                                                         | `1.0` (100%)                                                               |
 | extraMasks             | Optional, list of regexes to be used as argument to [url-value-parser](https://www.npmjs.com/package/url-value-parser), this will cause extra route params,  to be replaced with a `#val` placeholder.                                                                              | no extra masks: `[]`                                                       |
 | authenticate           | Optional authentication callback, the function should receive as argument, the `req` object and return truthy for sucessfull authentication, or falsy, otherwise. This option supports Promise results.                                                                             | `null`                                                                     |
 | prefix                 | Optional prefix for the metrics name                                                                                                                                                                                                                                                | no prefix added                                                            |
@@ -54,6 +55,7 @@ app.use(createExpressPrometheusExporterMiddleware({
   requestDurationBuckets: [0.1, 0.5, 1, 1.5],
   requestLengthBuckets: [512, 1024, 5120, 10240, 51200, 102400],
   responseLengthBuckets: [512, 1024, 5120, 10240, 51200, 102400],
+  sampleRate: 1.0,
   /**
    * Uncomenting the `authenticate` callback will make the `metricsPath` route
    * require authentication. This authentication callback can make a simple

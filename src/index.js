@@ -11,7 +11,8 @@ const {
 
 const { normalizeStatusCode, normalizePath } = require('./normalizers');
 
-const EXPRESS_PATH_PARAMETER_REGEX = /:\w+(?:_\w+)*/;
+const expressPathParameterRegex = /:\w+(?:_\w+)*/;
+const samplePercent = 100;
 
 const { extractRoutes } = require('./express-utils');
 
@@ -31,6 +32,7 @@ const defaultOptions = {
   customLabels: [],
   transformLabels: null,
   normalizeStatus: true,
+  sampleRate: 1.0,
 };
 
 function createExpressPrometheusExporterMiddleware(userOptions = {}) {
@@ -38,9 +40,10 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
   const originalLabels = ['route', 'method', 'status'];
   options.customLabels = new Set([...originalLabels, ...options.customLabels]);
   options.customLabels = [...options.customLabels];
-  const { metricsPath, metricsApp, normalizeStatus } = options;
+  const { metricsPath, metricsApp, normalizeStatus, sampleRate } = options;
   const allowedRoutes = [];
   let isAllowedRoutesInitialized = false;
+  let sampleCount = 0
 
   const app = express();
   app.disable('x-powered-by');
@@ -82,7 +85,7 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
       method: route.method,
       path: normalizePath(route.path, [
         ...options.extraMasks,
-        EXPRESS_PATH_PARAMETER_REGEX,
+        expressPathParameterRegex,
       ]),
     }));
 
@@ -90,6 +93,8 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
 
     isAllowedRoutesInitialized = true;
   };
+  
+  const isSampled = () => (sampleCount / samplePercent) <= sampleRate;
 
   /**
    * Corresponds to the R(equest rate), E(error rate), and D(uration of requests),
@@ -99,6 +104,10 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
     const { originalUrl, method } = req;
 
     if (originalUrl === metricsPath) return;
+
+    sampleCount = sampleCount === samplePercent ? 0 : sampleCount + 1;
+
+    if (!isSampled()) return 
 
     // will replace ids from the route with `#val` placeholder this serves to
     // measure the same routes, e.g., /image/id1, and /image/id2, will be
