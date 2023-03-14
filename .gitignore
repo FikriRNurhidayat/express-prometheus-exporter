@@ -67,3 +67,8 @@ typings/
 
 # sample server
 server.js
+
+# package
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
