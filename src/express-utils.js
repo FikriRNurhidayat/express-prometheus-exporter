@@ -1,12 +1,12 @@
 // Stolen from https://github.com/labithiotis/express-list-routes#readme
-const path = require("path");
+const path = require('path');
 
 function getPathFromRegex(regexp) {
   return regexp
     .toString()
-    .replace("/^", "")
-    .replace("?(?=\\/|$)/i", "")
-    .replace(/\\\//g, "/");
+    .replace('/^', '')
+    .replace('?(?=\\/|$)/i', '')
+    .replace(/\\\//g, '/');
 }
 
 function combineStacks(acc, stack) {
@@ -14,13 +14,15 @@ function combineStacks(acc, stack) {
     const routerPath = getPathFromRegex(stack.regexp);
     return [
       ...acc,
-      ...stack.handle.stack.map((stack) => ({ routerPath, ...stack })),
+      ...stack.handle.stack.map((st) => ({ routerPath, ...st })),
     ];
   }
   return [...acc, stack];
 }
 
 function getStacks(app) {
+  /* eslint-disable no-underscore-dangle */
+
   // Express 3
   if (app.routes) {
     // convert to express 4
@@ -45,7 +47,7 @@ function getStacks(app) {
     if (app.router && app.router.stack) {
       return app.router.stack.reduce(combineStacks, []);
     }
-  } catch {
+  } catch (err) {
     // Handle that error
   }
 
@@ -54,6 +56,8 @@ function getStacks(app) {
 
 module.exports = {
   extractRoutes(app) {
+    // TODO: Fix this, since this is just a copy and paste.
+    /* eslint-disable no-restricted-syntax */
     const stacks = getStacks(app);
 
     const routes = [];
@@ -74,7 +78,7 @@ module.exports = {
                     route.path,
                   ]
                     .filter((s) => !!s)
-                    .join("")
+                    .join(''),
                 ),
               });
 

@@ -12,12 +12,12 @@
   "files": [
     "src/"
   ],
-  "repository": "https://github.com/fikrirnurhidayat/express-prometheus-middleware.git",
+  "repository": "https://github.com/fikrirnurhidayat/express-prometheus-exporter.git",
   "author": "Fikri Rahmat Nurhidayat <fikrirnurhidayat@gmail.com>",
   "license": "MIT",
   "private": false,
   "scripts": {
-    "lint": "eslint . && echo '✔  Your .js files look good.'",
+    "lint": "eslint .",
     "release": "standard-version"
   },
   "devDependencies": {

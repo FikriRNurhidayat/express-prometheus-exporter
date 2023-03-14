@@ -1,22 +1,22 @@
-const express = require("express");
-const Prometheus = require("prom-client");
-const ResponseTime = require("response-time");
+const express = require('express');
+const Prometheus = require('prom-client');
+const ResponseTime = require('response-time');
 
 const {
   requestCountGenerator,
   requestDurationGenerator,
   requestLengthGenerator,
   responseLengthGenerator,
-} = require("./metrics");
+} = require('./metrics');
 
-const { normalizeStatusCode, normalizePath } = require("./normalizers");
+const { normalizeStatusCode, normalizePath } = require('./normalizers');
 
 const EXPRESS_PATH_PARAMETER_REGEX = /:\w+(?:_\w+)*/;
 
-const { extractRoutes } = require("./express-utils");
+const { extractRoutes } = require('./express-utils');
 
 const defaultOptions = {
-  metricsPath: "/metrics",
+  metricsPath: '/metrics',
   metricsApp: null,
   authenticate: null,
   collectDefaultMetrics: true,
@@ -35,7 +35,7 @@ const defaultOptions = {
 
 function createExpressPrometheusExporterMiddleware(userOptions = {}) {
   const options = { ...defaultOptions, ...userOptions };
-  const originalLabels = ["route", "method", "status"];
+  const originalLabels = ['route', 'method', 'status'];
   options.customLabels = new Set([...originalLabels, ...options.customLabels]);
   options.customLabels = [...options.customLabels];
   const { metricsPath, metricsApp, normalizeStatus } = options;
@@ -43,26 +43,26 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
   let isAllowedRoutesInitialized = false;
 
   const app = express();
-  app.disable("x-powered-by");
+  app.disable('x-powered-by');
 
   const requestDuration = requestDurationGenerator(
     options.customLabels,
     options.requestDurationBuckets,
-    options.prefix
+    options.prefix,
   );
   const requestCount = requestCountGenerator(
     options.customLabels,
-    options.prefix
+    options.prefix,
   );
   const requestLength = requestLengthGenerator(
     options.customLabels,
     options.requestLengthBuckets,
-    options.prefix
+    options.prefix,
   );
   const responseLength = responseLengthGenerator(
     options.customLabels,
     options.responseLengthBuckets,
-    options.prefix
+    options.prefix,
   );
 
   /**
@@ -73,7 +73,7 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
   const isPathAllowed = (method, path) => {
     if (allowedRoutes.length === 0) return false;
     return allowedRoutes.some(
-      (route) => route.method === method && route.path === path
+      (route) => route.method === method && route.path === path,
     );
   };
 
@@ -119,7 +119,7 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
 
     const labels = { route: path, method, status };
 
-    if (typeof options.transformLabels === "function") {
+    if (typeof options.transformLabels === 'function') {
       options.transformLabels(labels, req, res);
     }
     requestCount.inc(labels);
@@ -129,7 +129,7 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
 
     // observe request length
     if (options.requestLengthBuckets.length) {
-      const reqLength = req.get("Content-Length");
+      const reqLength = req.get('Content-Length');
       if (reqLength) {
         requestLength.observe(labels, Number(reqLength));
       }
@@ -137,7 +137,7 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
 
     // observe response length
     if (options.responseLengthBuckets.length) {
-      const resLength = res.get("Content-Length");
+      const resLength = res.get('Content-Length');
       if (resLength) {
         responseLength.observe(labels, Number(resLength));
       }
@@ -161,7 +161,7 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
   const routeApp = metricsApp || app;
 
   routeApp.get(metricsPath, async (req, res, next) => {
-    if (typeof options.authenticate === "function") {
+    if (typeof options.authenticate === 'function') {
       let result = null;
       try {
         result = await options.authenticate(req);
@@ -176,7 +176,7 @@ function createExpressPrometheusExporterMiddleware(userOptions = {}) {
       }
     }
 
-    res.set("Content-Type", Prometheus.register.contentType);
+    res.set('Content-Type', Prometheus.register.contentType);
     return res.end(await Prometheus.register.metrics());
   });
 
