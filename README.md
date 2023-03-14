@@ -6,7 +6,17 @@ The metrics exposed allows to calculate common RED (Request, Error rate, Duratio
 
 ## Install
 
-**TODO**
+Using yarn.
+
+```
+yarn add express-prometheus-exporter
+```
+
+Using npm.
+
+```
+npm install express-prometheus-exporter
+```
 
 ## Usage
 
